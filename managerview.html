@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager's View - All Pending</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00ff9d;
+            --secondary-color: #6c63ff;
+            --dark-bg: #1a1a1a;
+            --darker-bg: #121212;
+            --light-text: #ffffff;
+            --error-color: #ff3860;
+            --success-color: #23d160;
+            --warning-color: #ffbd00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.1) 0%, transparent 20%);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .container {
+            background-color: var(--dark-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            border-radius: 2px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: rgba(30, 41, 59, 0.9);
+            font-weight: 600;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        th:hover::after {
+            left: 100%;
+        }
+
+        td {
+            background: rgba(30, 41, 59, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        tr:nth-child(even) td {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        tr:hover td {
+            background: rgba(56, 70, 101, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .approve-button, .reject-button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .approve-button {
+            background: linear-gradient(135deg, var(--success-color) 0%, #10b981 100%);
+            color: white;
+        }
+
+        .approve-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .approve-button:active {
+            transform: translateY(0);
+        }
+
+        .approve-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .approve-button:hover::before {
+            left: 100%;
+        }
+
+        .reject-button {
+            background: linear-gradient(135deg, var(--error-color) 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .reject-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .reject-button:active {
+            transform: translateY(0);
+        }
+
+        .reject-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .reject-button:hover::before {
+            left: 100%;
+        }
+
+        /* Status badge styling */
+        .status-cell {
+            position: relative;
+            padding-left: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .status-cell.pending::before {
+            content: "";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--warning-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-cell.approved::before {
+            content: "";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--success-color);
+        }
+
+        .status-cell.rejected::before {
+            content: "";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--error-color);
+        }
+
+        .status-cell.pending {
+            color: var(--warning-color);
+        }
+
+        .status-cell.approved {
+            color: var(--success-color);
+        }
+
+        .status-cell.rejected {
+            color: var(--error-color);
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+            }
+            
+            .approve-button, .reject-button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+        }
+
+        /* Animation for table rows */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        tbody tr {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        tbody tr:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Custom scrollbar */
+        .table-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+
+        /* Stats cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-pending .stat-value {
+            color: var(--warning-color);
+        }
+
+        .stat-approved .stat-value {
+            color: var(--success-color);
+        }
+
+        .stat-rejected .stat-value {
+            color: var(--error-color);
+        }
+
+        .stat-total .stat-value {
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .stat-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .stat-pending .stat-icon {
+            color: var(--warning-color);
+        }
+
+        .stat-approved .stat-icon {
+            color: var(--success-color);
+        }
+
+        .stat-rejected .stat-icon {
+            color: var(--error-color);
+        }
+
+        .stat-total .stat-icon {
+            color: var(--primary-color);
+        }
+
+        /* Filter section */
+        .filter-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.2);
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            outline: none;
+            flex-grow: 1;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.2);
+        }
+
+        .logout-button {
+            padding: 8px 16px;
+            background: transparent;
+            color: var(--light-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logout-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-user-shield"></i>
+            <h1>Admin Portal</h1>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">JD</div>
+            <span>John Doe (Manager)</span>
+            <button class="logout-button">
+                <i class="fas fa-sign-out-alt"></i> <a style="text-decoration: none; color: white; font-family: Arial, Helvetica, sans-serif;font-size: 16px;" href="./index.html"> Logout</a>
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Pending Approvals</h2>
+        
+        <div class="stats-container">
+            <div class="stat-card stat-pending">
+                <i class="fas fa-clock stat-icon"></i>
+                <div class="stat-value">4</div>
+                <div class="stat-label">Pending Requests</div>
+            </div>
+            <div class="stat-card stat-approved">
+                <i class="fas fa-check-circle stat-icon"></i>
+                <div class="stat-value">12</div>
+                <div class="stat-label">Approved This Month</div>
+            </div>
+            <div class="stat-card stat-rejected">
+                <i class="fas fa-times-circle stat-icon"></i>
+                <div class="stat-value">3</div>
+                <div class="stat-label">Rejected This Month</div>
+            </div>
+            <div class="stat-card stat-total">
+                <i class="fas fa-file-invoice-dollar stat-icon"></i>
+                <div class="stat-value">₹151,396</div>
+                <div class="stat-label">Total Amount Pending</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <select class="filter-select">
+                <option value="all">All Categories</option>
+                <option value="supplies">Supplies</option>
+                <option value="transport">Transport</option>
+                <option value="food">Food</option>
+                <option value="software">Software</option>
+            </select>
+            <select class="filter-select">
+                <option value="all">All Owners</option>
+                <option value="sarah">Sarah</option>
+                <option value="john">John</option>
+                <option value="michael">Michael</option>
+                <option value="emma">Emma</option>
+            </select>
+            <input type="text" class="search-input" placeholder="Search requests...">
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Approval Subject</th>
+                        <th>Request Owner</th>
+                        <th>Category</th>
+                        <th>Request Status</th>
+                        <th>Total Amount</th>
+                        <th colspan="2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Office Supplies</td>
+                        <td>Sarah</td>
+                        <td>Supplies</td>
+                        <td class="status-cell pending">Pending</td>
+                        <td>567 $ (in INR) = 49,896</td>
+                        <td><button class="approve-button"><i class="fas fa-check"></i> Approve</button></td>
+                        <td><button class="reject-button"><i class="fas fa-times"></i> Reject</button></td>
+                    </tr>
+                    <tr>
+                        <td>Travel Expenses</td>
+                        <td>John</td>
+                        <td>Transport</td>
+                        <td class="status-cell pending">Pending</td>
+                        <td>250 € (in INR) = 22,500</td>
+                        <td><button class="approve-button"><i class="fas fa-check"></i> Approve</button></td>
+                        <td><button class="reject-button"><i class="fas fa-times"></i> Reject</button></td>
+                    </tr>
+                    <tr>
+                        <td>Team Lunch</td>
+                        <td>Michael</td>
+                        <td>Food</td>
+                        <td class="status-cell pending">Pending</td>
+                        <td>120 £ (in INR) = 12,600</td>
+                        <td><button class="approve-button"><i class="fas fa-check"></i> Approve</button></td>
+                        <td><button class="reject-button"><i class="fas fa-times"></i> Reject</button></td>
+                    </tr>
+                    <tr>
+                        <td>Software License</td>
+                        <td>Emma</td>
+                        <td>Software</td>
+                        <td class="status-cell pending">Pending</td>
+                        <td>800 $ (in INR) = 66,400</td>
+                        <td><button class="approve-button"><i class="fas fa-check"></i> Approve</button></td>
+                        <td><button class="reject-button"><i class="fas fa-times"></i> Reject</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add interactive functionality for buttons
+            const approveButtons = document.querySelectorAll('.approve-button');
+            const rejectButtons = document.querySelectorAll('.reject-button');
+            const logoutButton = document.querySelector('.logout-button');
+            
+            approveButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const statusCell = row.querySelector('.status-cell');
+                    
+                    // Update status to approved
+                    statusCell.textContent = 'Approved';
+                    statusCell.className = 'status-cell approved';
+                    
+                    // Create a confirmation effect
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> Approved';
+                    this.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    
+                    // Disable both buttons in the row
+                    row.querySelectorAll('button').forEach(btn => {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.6';
+                        btn.style.cursor = 'not-allowed';
+                    });
+                    
+                    // Update stats
+                    updateStats('approve');
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.style.background = 'linear-gradient(135deg, var(--success-color) 0%, #10b981 100%)';
+                    }, 1500);
+                });
+            });
+            
+            rejectButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const statusCell = row.querySelector('.status-cell');
+                    
+                    // Update status to rejected
+                    statusCell.textContent = 'Rejected';
+                    statusCell.className = 'status-cell rejected';
+                    
+                    // Create a confirmation effect
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-times"></i> Rejected';
+                    this.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                    
+                    // Disable both buttons in the row
+                    row.querySelectorAll('button').forEach(btn => {
+                        btn.disabled = true;
+                        btn.style.opacity = '0.6';
+                        btn.style.cursor = 'not-allowed';
+                    });
+                    
+                    // Update stats
+                    updateStats('reject');
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalHTML;
+                        this.style.background = 'linear-gradient(135deg, var(--error-color) 0%, #dc2626 100%)';
+                    }, 1500);
+                });
+            });
+            
+            logoutButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to logout?')) {
+                    // In a real application, this would redirect to login page
+                    alert('Logging out...');
+                    // window.location.href = 'login.html';
+                }
+            });
+            
+            function updateStats(action) {
+                const pendingStat = document.querySelector('.stat-pending .stat-value');
+                const approvedStat = document.querySelector('.stat-approved .stat-value');
+                const rejectedStat = document.querySelector('.stat-rejected .stat-value');
+                const totalStat = document.querySelector('.stat-total .stat-value');
+                
+                let pendingCount = parseInt(pendingStat.textContent);
+                let approvedCount = parseInt(approvedStat.textContent);
+                let rejectedCount = parseInt(rejectedStat.textContent);
+                
+                if (action === 'approve') {
+                    pendingCount--;
+                    approvedCount++;
+                } else if (action === 'reject') {
+                    pendingCount--;
+                    rejectedCount++;
+                }
+                
+                pendingStat.textContent = pendingCount;
+                approvedStat.textContent = approvedCount;
+                rejectedStat.textContent = rejectedCount;
+                
+                // Update total amount (simplified - in a real app would calculate actual amount)
+                if (pendingCount === 0) {
+                    totalStat.textContent = '₹0';
+                }
+            }
+            
+            // Search functionality
+            const searchInput = document.querySelector('.search-input');
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Filter functionality
+            const categoryFilter = document.querySelector('.filter-select');
+            const ownerFilter = document.querySelectorAll('.filter-select')[1];
+            
+            categoryFilter.addEventListener('change', applyFilters);
+            ownerFilter.addEventListener('change', applyFilters);
+            
+            function applyFilters() {
+                const categoryValue = categoryFilter.value;
+                const ownerValue = ownerFilter.value;
+                const rows = document.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const category = row.cells[2].textContent.toLowerCase();
+                    const owner = row.cells[1].textContent.toLowerCase();
+                    
+                    const categoryMatch = categoryValue === 'all' || category.includes(categoryValue);
+                    const ownerMatch = ownerValue === 'all' || owner.includes(ownerValue);
+                    
+                    if (categoryMatch && ownerMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

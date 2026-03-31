@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Report Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00ff9d;
+            --secondary-color: #6c63ff;
+            --dark-bg: #1a1a1a;
+            --darker-bg: #121212;
+            --light-text: #ffffff;
+            --error-color: #ff3860;
+            --success-color: #23d160;
+            --warning-color: #ffbd00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.1) 0%, transparent 20%);
+        }
+
+        .form-container {
+            background-color: var(--dark-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary-color);
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .status-gradient {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #cccccc;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            transition: color 0.3s ease;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 14px 14px 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--light-text);
+            font-size: 16px;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.2);
+        }
+
+        input[type="text"]:focus + i,
+        input[type="number"]:focus + i,
+        input[type="date"]:focus + i,
+        select:focus + i {
+            color: var(--primary-color);
+        }
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white"><path d="M5.5 8.5L10 13l4.5-4.5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        select option {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .amount-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .amount-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .amount-input-group input {
+            flex-grow: 1;
+        }
+
+        .amount-input-group select {
+            width: 120px;
+        }
+
+        .conversion-info {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .converted-amount {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .conversion-note {
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            margin-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 25px;
+        }
+
+        .table-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(30, 41, 59, 0.9);
+            font-weight: 600;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        th:hover::after {
+            left: 100%;
+        }
+
+        td {
+            background: rgba(30, 41, 59, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        tr:nth-child(even) td {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-approved {
+            background: rgba(35, 209, 96, 0.2);
+            color: var(--success-color);
+        }
+
+        .status-pending {
+            background: rgba(255, 189, 0, 0.2);
+            color: var(--warning-color);
+        }
+
+        .submit-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn-primary {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 32px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: var(--darker-bg);
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 157, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 157, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-attach {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light-text);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-attach:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 25px 20px;
+            }
+            
+            .form-grid, .amount-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .amount-input-group {
+                flex-direction: column;
+            }
+            
+            .amount-input-group select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="header">
+            <button class="btn-attach">
+                <i class="fas fa-file-invoice"></i>
+                <span>Attach Receipt</span>
+            </button>
+            <div class="status-indicator">
+                <span class="status-gradient">Draft</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Waiting approval</span>
+                <i class="fas fa-chevron-right"></i>
+                <span>Approved</span>
+            </div>
+        </div>
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="category">Category</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-folder"></i>
+                    <select id="category" class="form-input">
+                        <option value="" disabled selected>Select a category</option>
+                        <option value="travel">Travel</option>
+                        <option value="meals">Meals & Entertainment</option>
+                        <option value="software">Software Subscription</option>
+                        <option value="hardware">Office Hardware</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="expense-date">Expense Date</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-calendar"></i>
+                    <input type="date" id="expense-date" class="form-input">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-pen"></i>
+                    <input type="text" id="description" class="form-input" placeholder="e.g., Client dinner on Market Street">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="paid-by">Paid by</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-credit-card"></i>
+                    <select id="paid-by" class="form-input">
+                        <option value="" disabled selected>Select payment method</option>
+                        <option value="card">Company Card</option>
+                        <option value="cash">Personal Cash</option>
+                        <option value="transfer">Bank Transfer</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="amount-section">
+            <div class="form-group">
+                <label for="amount">Total amount in currency selection</label>
+                <div class="amount-input-group">
+                    <div class="input-with-icon" style="flex-grow: 1;">
+                        <i class="fas fa-dollar-sign"></i>
+                        <input type="number" id="amount" class="form-input" placeholder="567" value="567" oninput="convertCurrency()">
+                    </div>
+                    <select id="currency" class="form-input" onchange="convertCurrency()">
+                        <option value="USD">USD $</option>
+                        <option value="EUR" selected>EUR €</option>
+                        <option value="GBP">GBP £</option>
+                        <option value="JPY">JPY ¥</option>
+                    </select>
+                </div>
+                <div class="conversion-info">
+                    <p id="converted-amount" class="converted-amount">Converted to base currency (USD): $612.36</p>
+                    <p class="conversion-note">*Amount is auto-converted to USD (base currency).</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">Remarks</label>
+                <textarea id="remarks" class="form-input" placeholder="Add any necessary notes for the approver..."></textarea>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3 class="table-title">Approval Workflow Status</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Approver</th>
+                        <th>Status</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sarah</td>
+                        <td><span class="status-badge status-approved">Approved</span></td>
+                        <td>12:44 4th Oct, 2025</td>
+                    </tr>
+                    <tr>
+                        <td>Jane (Final Reviewer)</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>--</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="submit-section">
+            <button class="btn-primary">
+                <i class="fas fa-paper-plane"></i>
+                <span><a style="text-decoration: none; color: #121212; font-family: Arial, Helvetica, sans-serif;font-size: 16px;" href="./managerview.html">Submit Expense</a></span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // --- Currency Conversion Logic ---
+        // Mock exchange rates (Base currency is USD)
+        const EXCHANGE_RATES = {
+            'USD': 1.00,
+            'EUR': 1.08, // 1 EUR = 1.08 USD
+            'GBP': 1.25, // 1 GBP = 1.25 USD
+            'JPY': 0.0065 // 1 JPY = 0.0065 USD
+        };
+
+        const amountInput = document.getElementById('amount');
+        const currencySelect = document.getElementById('currency');
+        const convertedAmountDisplay = document.getElementById('converted-amount');
+
+        /**
+         * Converts the input amount from the selected currency to the base currency (USD).
+         */
+        function convertCurrency() {
+            const amount = parseFloat(amountInput.value);
+            const selectedCurrency = currencySelect.value;
+
+            if (isNaN(amount) || amount <= 0) {
+                convertedAmountDisplay.textContent = 'Enter a valid amount.';
+                return;
+            }
+
+            const rate = EXCHANGE_RATES[selectedCurrency];
+            
+            if (rate) {
+                // Calculation: Amount / (Units of Base Currency per 1 Unit of Selected Currency)
+                // Since the rates are defined as X USD per 1 unit of foreign currency:
+                const amountInUSD = amount * rate; 
+                
+                convertedAmountDisplay.textContent = `Converted to base currency (USD): $${amountInUSD.toFixed(2)}`;
+            } else {
+                convertedAmountDisplay.textContent = 'Rate not available for this currency.';
+            }
+        }
+
+        // Run conversion on load
+        window.onload = () => {
+            convertCurrency();
+        };
+
+        // Add form submission handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const submitButton = document.querySelector('.btn-primary');
+            submitButton.addEventListener('click', function() {
+                // Basic form validation
+                const category = document.getElementById('category').value;
+                const description = document.getElementById('description').value;
+                const expenseDate = document.getElementById('expense-date').value;
+                const paidBy = document.getElementById('paid-by').value;
+                const amount = document.getElementById('amount').value;
+                
+                if (!category || !description || !expenseDate || !paidBy || !amount) {
+                    alert('Please fill in all required fields before submitting.');
+                    return;
+                }
+                
+                // Show success message
+                alert('Expense submitted successfully!');
+                
+                // In a real application, you would submit the form data to a server here
+            });
+
+            // Attach receipt button handler
+            const attachButton = document.querySelector('.btn-attach');
+            attachButton.addEventListener('click', function() {
+                alert('Receipt attachment functionality would be implemented here.');
+            });
+        });
+    </script>
+</body>
+</html>

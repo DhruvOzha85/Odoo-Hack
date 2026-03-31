@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<!-- saved from url=(0038)http://127.0.0.1:5500/adminview01.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin View (Approval Rules)</title>
+    <link rel="stylesheet" href="./New Admin View (Approval Rules)_files/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00ff9d;
+            --secondary-color: #6c63ff;
+            --dark-bg: #1a1a1a;
+            --darker-bg: #121212;
+            --light-text: #ffffff;
+            --error-color: #ff3860;
+            --success-color: #23d160;
+            --warning-color: #ffbd00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.1) 0%, transparent 20%);
+        }
+
+        .admin-container {
+            background-color: var(--dark-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 1000px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #e2e8f0;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 10px;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 25px;
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #cccccc;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            transition: color 0.3s ease;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 14px 14px 14px 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--light-text);
+            font-size: 16px;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.2);
+        }
+
+        input[type="text"]:focus + i,
+        input[type="number"]:focus + i,
+        select:focus + i {
+            color: var(--primary-color);
+        }
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="white"><path d="M5.5 8.5L10 13l4.5-4.5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+        select option {
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+            padding: 12px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        .checkbox-group:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            transform: scale(1.3);
+            margin-top: 3px;
+            accent-color: var(--primary-color);
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 16px;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .checkbox-info {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+            line-height: 1.5;
+            padding-left: 5px;
+        }
+
+        .approver-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .approver-table th,
+        .approver-table td {
+            padding: 16px;
+            text-align: left;
+        }
+
+        .approver-table th {
+            background: rgba(30, 41, 59, 0.9);
+            font-weight: 600;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .approver-table th::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .approver-table th:hover::after {
+            left: 100%;
+        }
+
+        .approver-table td {
+            background: rgba(30, 41, 59, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .approver-table tr:nth-child(even) td {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .approver-table tbody tr:hover td {
+            background: rgba(56, 70, 101, 0.5);
+        }
+
+        .percentage-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(30, 41, 59, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 300px;
+        }
+
+        .percentage-container input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            width: 60px;
+            text-align: center;
+        }
+
+        .percentage-container input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .percentage-container span {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .percentage-slider {
+            width: 100%;
+            margin-top: 15px;
+            max-width: 300px;
+        }
+
+        .percentage-slider input {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .percentage-slider input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .percentage-slider input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .save-button, .reset-button {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-button {
+            background: linear-gradient(135deg, var(--success-color) 0%, #10b981 100%);
+            color: white;
+        }
+
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .save-button:active {
+            transform: translateY(0);
+        }
+
+        .save-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .save-button:hover::before {
+            left: 100%;
+        }
+
+        .reset-button {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .reset-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 25px 20px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .form-group {
+                min-width: 100%;
+            }
+            
+            .approver-table th,
+            .approver-table td {
+                font-size: 14px;
+                padding: 12px 8px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .save-button, .reset-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Animation for form sections */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-section {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .form-section:nth-child(1) { animation-delay: 0.1s; }
+        .form-section:nth-child(2) { animation-delay: 0.2s; }
+        .form-section:nth-child(3) { animation-delay: 0.3s; }
+        .form-section:nth-child(4) { animation-delay: 0.4s; }
+        .form-section:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h2>Admin View (Approval Rules)</h2>
+        
+        <div class="form-section">
+            <div class="form-row">
+                <div class="form-group" style="flex: 2;">
+                    <label for="user">User</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="user" placeholder="Enter user name (e.g., marc)">
+                    </div>
+                </div>
+                <div class="form-group" style="flex: 3;">
+                    <label for="rules-description">Description about rules</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-file-alt"></i>
+                        <input type="text" id="rules-description" placeholder="Enter description for approval rules">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="manager-dropdown">Manager</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-users"></i>
+                        <select id="manager-dropdown">
+                            <option value="sarah">Sarah</option>
+                            <option value="manager-2">Manager 2</option>
+                            <option value="manager-3">Manager 3</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="manager-approver" checked="">
+                    <div>
+                        <label for="manager-approver">Is manager an approver?</label>
+                        <div class="checkbox-info">
+                            If this field is checked then by default the approve request would go to his/her manager first, before going to other approvers.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Approvers</h3>
+            <table class="approver-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Required</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John</td>
+                        <td>
+                            <div class="checkbox-group">
+                                <input type="checkbox" checked="">
+                                <div>
+                                    <label>Required Approver</label>
+                                    <div class="checkbox-info">
+                                        If this field is ticked, then an approval of this approver is required in any approval combination scenario.
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Mitchell</td>
+                        <td>
+                            <div class="checkbox-group">
+                                <input type="checkbox">
+                                <div>
+                                    <label>Required Approver</label>
+                                    <div class="checkbox-info">
+                                        If this field is ticked, then an approval of this approver is required in any approval combination scenario.
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Andreas</td>
+                        <td>
+                            <div class="checkbox-group">
+                                <input type="checkbox">
+                                <div>
+                                    <label>Required Approver</label>
+                                    <div class="checkbox-info">
+                                        If this field is ticked, then an approval of this approver is required in any approval combination scenario.
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="form-section">
+            <div class="checkbox-group">
+                <input type="checkbox" id="approver-sequence">
+                <div>
+                    <label for="approver-sequence">Approvers Sequence</label>
+                    <div class="checkbox-info">
+                        If this field is ticked true then the above mentioned sequence of approvers matters, that is first the request goes to John, if he approves/rejects then only request goes to Mitchell and so on.
+                        If the required approver rejects the request, then the expense request is auto-rejected.
+                        If not ticked then send approver request to all approvers at the same time.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <h3>Approval Threshold</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="min-percentage">Minimum Approval Percentage</label>
+                    <div class="percentage-container">
+                        <!-- <input
+                            type="number"
+                            id="min-percentage"
+                            value="60"
+                            min="0"
+                            max="100"
+                        /> -->
+                        <span>60%</span>
+                    </div>
+                    <!-- <div class="percentage-slider">
+                        <input
+                            type="range"
+                            id="percentage-slider"
+                            min="0"
+                            max="100"
+                            value="60"
+                        />
+                    </div> -->
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="reset-button">
+                <i class="fas fa-undo"></i>
+                <span>Reset to Default</span>
+            </button>
+            <button class="save-button">
+                <i class="fas fa-save"></i>
+                <span><a style="text-decoration: none; color: #121212; font-family: Arial, Helvetica, sans-serif;font-size: 16px;" href="./employeView.html">Save Approval Rules</a></span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form validation and submission
+            const saveButton = document.querySelector('.save-button');
+            const resetButton = document.querySelector('.reset-button');
+            const percentageInput = document.getElementById('min-percentage');
+            const percentageSlider = document.getElementById('percentage-slider');
+            
+            // Sync percentage input and slider
+            function syncPercentage() {
+                percentageInput.value = percentageSlider.value;
+            }
+            
+            function syncSlider() {
+                percentageSlider.value = percentageInput.value;
+            }
+            
+            // Add event listeners for real-time syncing
+            percentageInput.addEventListener('input', syncSlider);
+            percentageSlider.addEventListener('input', syncPercentage);
+            
+            // Save button functionality
+            saveButton.addEventListener('click', function() {
+                const user = document.getElementById('user').value;
+                const description = document.getElementById('rules-description').value;
+                
+                if (!user || !description) {
+                    alert('Please fill in both User and Description fields');
+                    return;
+                }
+                
+                alert('Approval rules saved successfully!');
+            });
+            
+            // Reset button functionality
+            resetButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to reset all fields to default values?')) {
+                    document.getElementById('user').value = '';
+                    document.getElementById('rules-description').value = '';
+                    document.getElementById('manager-dropdown').value = 'sarah';
+                    document.getElementById('manager-approver').checked = true;
+                    document.getElementById('approver-sequence').checked = false;
+                    
+                    // Reset approver checkboxes
+                    const approverCheckboxes = document.querySelectorAll('.approver-table input[type="checkbox"]');
+                    approverCheckboxes[0].checked = true; // John
+                    approverCheckboxes[1].checked = false; // Mitchell
+                    approverCheckboxes[2].checked = false; // Andreas
+                    
+                    // Reset percentage
+                    percentageInput.value = 60;
+                    percentageSlider.value = 60;
+                    
+                    alert('All fields have been reset to default values.');
+                }
+            });
+        });
+    </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+
+</body></html>

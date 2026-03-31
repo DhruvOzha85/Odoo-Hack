@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Expense View</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #00ff9d;
+            --secondary-color: #6c63ff;
+            --dark-bg: #1a1a1a;
+            --darker-bg: #121212;
+            --light-text: #ffffff;
+            --error-color: #ff3860;
+            --success-color: #23d160;
+            --warning-color: #ffbd00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--darker-bg);
+            color: var(--light-text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(108, 99, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(0, 255, 157, 0.1) 0%, transparent 20%);
+        }
+
+        .container {
+            background-color: var(--dark-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        h2::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            border-radius: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+
+        .upload-button, .new-button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-button {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light-text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .upload-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .new-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--darker-bg);
+        }
+
+        .new-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 255, 157, 0.3);
+        }
+
+        .new-button:active {
+            transform: translateY(0);
+        }
+
+        .new-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .new-button:hover::before {
+            left: 100%;
+        }
+
+        .status-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 25px;
+        }
+
+        .status-amount {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .status-label {
+            font-size: 0.95em;
+            color: #cbd5e1;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-summary .to-submit .status-amount { 
+            color: var(--warning-color);
+        }
+        .status-summary .waiting-approval .status-amount { 
+            color: var(--warning-color);
+        }
+        .status-summary .approved .status-amount { 
+            color: var(--success-color);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .expense-table th, .expense-table td {
+            padding: 16px;
+            text-align: left;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .expense-table th {
+            background: rgba(30, 41, 59, 0.9);
+            font-weight: 600;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .expense-table th::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .expense-table th:hover::after {
+            left: 100%;
+        }
+
+        .expense-table td {
+            background: rgba(30, 41, 59, 0.5);
+        }
+
+        .expense-table tr:nth-child(even) td {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .expense-table tbody tr:hover td {
+            background: rgba(56, 70, 101, 0.5);
+        }
+
+        .status-cell {
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .status-cell .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .status-cell.draft {
+            color: #cbd5e1;
+        }
+        .status-cell.draft .status-dot {
+            background-color: #cbd5e1;
+        }
+
+        .status-cell.submitted {
+            color: var(--primary-color);
+        }
+        .status-cell.submitted .status-dot {
+            background-color: var(--primary-color);
+        }
+
+        .status-cell.approved {
+            color: var(--success-color);
+        }
+        .status-cell.approved .status-dot {
+            background-color: var(--success-color);
+        }
+
+        .status-cell.rejected {
+            color: var(--error-color);
+        }
+        .status-cell.rejected .status-dot {
+            background-color: var(--error-color);
+        }
+
+        /* Custom scrollbar */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        }
+
+        /* Animation for table rows */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .expense-table tbody tr {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .expense-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        .expense-table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        .expense-table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        .expense-table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .status-summary {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .status-item {
+                flex: 1 1 calc(33% - 20px);
+                min-width: 120px;
+                padding: 10px 0;
+            }
+            
+            .arrow {
+                display: none;
+            }
+            
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .upload-button, .new-button {
+                flex: 1 1 auto;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Employee Expense View</h2>
+        
+        <div class="header-actions">
+            <button class="upload-button">
+                <i class="fas fa-receipt"></i>
+                <span>Upload Receipt</span>
+            </button>
+            <button class="new-button">
+                <i class="fas fa-plus"></i>
+                <span><a style="text-decoration: none; color: #121212; font-family: Arial, Helvetica, sans-serif;font-size: 16px;"href="./receipt.html">New Expense</a></span>
+            </button>
+        </div>
+
+        <div class="status-summary">
+            <div class="status-item to-submit">
+                <span class="status-amount">5467 rs</span>
+                <span class="status-label">To submit</span>
+            </div>
+            <span class="arrow">→</span>
+            <div class="status-item waiting-approval">
+                <span class="status-amount">33674 rs</span>
+                <span class="status-label">Waiting approval</span>
+            </div>
+            <span class="arrow">→</span>
+            <div class="status-item approved">
+                <span class="status-amount">500 rs</span>
+                <span class="status-label">Approved</span>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="expense-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Paid By</th>
+                        <th>Remarks</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sarah</td>
+                        <td>Restaurant bill</td>
+                        <td>4th Oct, 2025</td>
+                        <td>Food</td>
+                        <td>Sarah</td>
+                        <td>None</td>
+                        <td>5000 rs</td>
+                        <td class="status-cell draft">
+                            <span class="status-dot"></span>
+                            <pre style="font-size: 16px; font-family: Arial, Helvetica, sans-serif;"><span>  Draft</span></pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Michael</td>
+                        <td>Client meeting lunch</td>
+                        <td>3rd Oct, 2025</td>
+                        <td>Food</td>
+                        <td>Michael</td>
+                        <td>Business development</td>
+                        <td>3200 rs</td>
+                        <td class="status-cell submitted">
+                            <span class="status-dot"></span>
+                            <pre style="font-size: 16px; font-family: Arial, Helvetica, sans-serif;"><span>  Submitted</span></pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>John</td>
+                        <td>Flight to conference</td>
+                        <td>1st Oct, 2025</td>
+                        <td>Travel</td>
+                        <td>Company</td>
+                        <td>Annual tech conference</td>
+                        <td>12500 rs</td>
+                        <td class="status-cell approved">
+                            <span class="status-dot"></span>
+                            <pre style="font-size: 16px; font-family: Arial, Helvetica, sans-serif;"><span>  Approved</span></pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Emma</td>
+                        <td>Software subscription</td>
+                        <td>28th Sep, 2025</td>
+                        <td>Software</td>
+                        <td>Emma</td>
+                        <td>Monthly license fee</td>
+                        <td>2500 rs</td>
+                        <td class="status-cell rejected">
+                            <span class="status-dot"></span>
+                            <pre style="font-size: 16px; font-family: Arial, Helvetica, sans-serif;"><span>   Rejected</span></pre>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add button functionality
+            const uploadButton = document.querySelector('.upload-button');
+            const newButton = document.querySelector('.new-button');
+            
+            uploadButton.addEventListener('click', function() {
+                alert('Receipt upload functionality would be implemented here.');
+            });
+            
+            newButton.addEventListener('click', function() {
+                alert('New expense form would open here.');
+            });
+        });
+    </script>
+</body>
+</html>
